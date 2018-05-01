@@ -1,6 +1,7 @@
 <?php
 
 namespace tool;
+//namespace tool\functions;
 
 /**
  * 我的一些常用的方法,写到这里实现复用
@@ -18,8 +19,11 @@ class tool_functions
     /**
      * 提示音
      */
-    public static function music($music_num=4, $vdio_url='', $loop='no')
+    public static function music($music_num=4, $vdio_url='../resource_plugins/', $loop='no')
     {
+        if(empty($vdio_url)){
+            $vdio_url='../resource_plugins/';
+        }
         $music = [
             0=>'quekly',
             1=>'success',
@@ -28,24 +32,32 @@ class tool_functions
             4=>'newChance',
             5=>'dingdong',
             6=>'teacher_new_message',
+            7=>'状态层次变化',
+            8=>'增长中',
+            9=>'抛出',
+            10=>'买进',
         ];
         // download from http://sc.chinaz.com/tag_yinxiao/tishiyin.html
+
         if ($loop=='yes' || $loop==1) {
 //        if ($loop=='yes') {
-//            echo('提示音: <audio autoplay loop><source src="./newChance.wav" ></audio>');
-            echo('提示音: <audio autoplay loop><source src="../resource_plugins/'. $music[$music_num] . '.wav" ></audio>');
-        } else {
-//            echo('提示音: <audio autoplay><source src="../resource_plugins/newChance.wav" ></audio>');
-            // echo('提示音: <audio autoplay><source src="../resource_plugins/'. $music[1] . '.wav" ></audio>');
-            // echo('提示音: <audio autoplay><source src="../resource_plugins/'. $music[6] . '.wav" ></audio>');
-            // echo('提示音: <audio autoplay><source src="../resource_plugins/'. $music[5] . '.wav" ></audio>');
-            echo('提示音: <audio autoplay><source src="../resource_plugins/'. $music[$music_num] . '.wav" ></audio>');
-            echo('提示音: <audio autoplay><source src="F:/wamp/www/resource_plugins/'. $music[$music_num] . '.wav" ></audio>');
-                    var_dump(__FILE__);
+//            echo('<audio autoplay loop><source src="./newChance.wav" ></audio>');
+            echo('<audio autoplay loop><source src="' . $vdio_url . $music[$music_num] . '.wav" ></audio>');
 
-            echo('提示音: <audio autoplay><source src="../../resource_plugins/'. $music[$music_num] . '.wav" ></audio>');
+        } else {
+//            echo('<audio autoplay><source src="../resource_plugins/newChance.wav" ></audio>');
+            // echo('<audio autoplay><source src="../resource_plugins/'. $music[1] . '.wav" ></audio>');
+            // echo('<audio autoplay><source src="../resource_plugins/'. $music[6] . '.wav" ></audio>');
+            // echo('<audio autoplay><source src="../resource_plugins/'. $music[5] . '.wav" ></audio>');
+            //            echo('<audio autoplay><source src="F:/wamp/www/resource_plugins/'. $music[$music_num] . '.wav" ></audio>'); // 都没有音乐
+//            echo('<audio autoplay><source src="../resource_plugins/'. $music[$music_num] . '.wav" ></audio>'); // 有音乐
+//            echo('<audio autoplay><source src="../../resource_plugins/'. $music[$music_num] . '.wav" ></audio>'); // 有音乐
+            echo('<audio autoplay><source src="' . $vdio_url . $music[$music_num] . '.wav" ></audio>'); // YII有音乐--注意 要针对试图文件来决定相对路径， 而且不可以用绝对路径，可能是解析的路由规则问题
+//                    var_dump(__FILE__);
+//
+//            echo('<audio autoplay><source src="../../resource_plugins/'. $music[$music_num] . '.wav" ></audio>');
         }
-        var_dump('提示音含义: ' . $music[$music_num]);
+        echo('提示音含义: ' . $music[$music_num] . ' &nbsp&nbsp');
 
 
 //         $music = [
@@ -59,18 +71,6 @@ class tool_functions
 //             7=>'online_relex.mp3',
 //         ];
 //         // download from http://sc.chinaz.com/tag_yinxiao/tishiyin.html
-//         if ($loop=='yes' || $loop==1) {
-// //        if ($loop=='yes') {
-// //            echo('提示音: <audio autoplay loop><source src="./newChance.wav" ></audio>');
-//             echo('提示音: <audio autoplay loop><source src="F:/wamp/www/resource_plugins/'. $music[$music_num] . '" ></audio>');
-//         } else {
-// //            echo('提示音: <audio autoplay><source src="../resource_plugins/newChance" ></audio>');
-//             echo('提示音: <audio autoplay><source src="F:/wamp/www/resource_plugins/'. $music[$music_num] . '" ></audio>');
-//             echo('提示音: <audio autoplay><source src="F:\wamp\www\resource_plugins\teacher_new_message.wav" ></audio>');
-//             echo('提示音: <audio autoplay><source src="F:/wamp/www/resource_plugins/teacher_new_message.wav" ></audio>');
-//         }
-//         var_dump('提示音含义: ' . $music[$music_num]);
-
     }
 
     /**
@@ -119,11 +119,20 @@ class tool_functions
 
 //        var_dump($content);exit();
         if ( ! $file_append) {
-            file_put_contents($file_nme, $content);
+//            file_put_contents($file_nme, $content);
+            $res = file_put_contents($file_nme, $content);
+//            估计是权限不够
+//            echo substr(sprintf('%o', fileperms('你的目录')), -4); //看看是什么结果
+//            echo substr(sprintf('%o', fileperms($file_nme)), -4);
+//            return $res;
         } else {
-            file_put_contents($file_nme, $content, FILE_APPEND);
+            $res = file_put_contents($file_nme, $content, FILE_APPEND);
         }
-        return 1;
+        if($res !== false){
+            return 1;
+        } else{
+            return 0;
+        }
     }
 
     /**
@@ -159,21 +168,21 @@ class tool_functions
     /**
      * 刷新页面
      */
-    public static function freshPage($alert=0, $msg='刷新页面'){
+    public static function freshPage($alert=0, $msg='刷新页面', $settime = 0){
 //    public static function freshPage($alert=0){
-        // echo "window.location.reload()";
 
+        // $settime = 1000 * 60 * $n + rand(20, 1000); // 更像随机时间
         if ($alert) {
-//                        echo "<script language=\"javascript\"> alert ('" . $msg . "');</script>";
-//                        sleep(2);
-//                        var_dump(25);exit();
-//            echo "<script language=\"javascript\"> alert ('2266');</script>";
-//            var_dump(223);exit();
+            echo "<script language=\"javascript\"> alert ('" . $msg . "');</script>";
         }
-//        var_dump(22);
 
-        // alert('定时刷新');
-        echo "<script language=\"javascript\"> window.location.reload();</script>";
+        // todo: note  $settime is micro secend
+        if($settime > 0){
+            echo "<script language=\"javascript\">setTimeout(function () {
+                 window.location.reload();}, $settime);</script>";
+        } else {
+            echo "<script language=\"javascript\"> window.location.reload();</script>";
+        }
     }
     /**
      * 重定向页面
@@ -268,7 +277,79 @@ class tool_functions
         return iconv($inchareset, 'UTF-8', $str);
         return iconv("$inchareset", 'UTF-8', $str);
     }
+
+    /**
+     * 输出显示utf-8的header
+     *
+     * @param string $str
+     */
     public static function headericonv($str='') {
         header("Content-Type: text/html;charset=utf-8");
     }
+
+    /**
+     * 目前自用数据库的时间字段统一处理方式
+     *
+     * @param array $data
+     * @param string $key
+     * @param int $type 1新增 2更新 3删除
+     * @return array
+     */
+    public static function htimeFieldHandle($data = [], $key = '', $type = 1) {
+
+        // $create_time
+        // $create_str_time
+        // $update_time // 初始创建为空
+        // $delete_time // 初始创建为空
+        $temp = time();
+        if($type == 1) {
+            if (isset($data[$key]['create_time'])) {
+                $data[$key]['create_time'] = self::formateDate($temp);
+            }
+            if (isset($data[$key]['create_str_time'])) {
+                $data[$key]['create_str_time'] = $temp; // 字符串形式时间戳
+            }
+        } else if($type == 2) {
+            if (isset($data[$key]['update_time'])) {
+                $data[$key]['update_time'] = self::formateDate($temp);
+            }
+        } else if($type == 3) {
+            if (isset($data[$key]['delete_time'])) {
+                $data[$key]['delete_time'] = self::formateDate($temp);
+            }
+        }
+        return $data;
+    }
+
+    public static function windowOpen($url)
+    {
+        echo "<script>window.open('{$url}', '_blank');</script>";
+    }
+
+    public static function windowReload()
+    {
+        echo "<script>window.location.reload();</script>";
+    }
+
+
+    /**
+     * 0-1的随机数  小数点有很多位
+     * @param int $min
+     * @param int $max
+     * @return float|int
+     */
+    public static function randomFloat($min = 0, $max = 1) {
+        // lcg_value()函数返回范围为 (0, 1) 的一个伪随机数。
+        return $min + mt_rand() / mt_getrandmax() * ($max - $min);
+    }
+
+
+
+    // todo: 公司工具方法类,
+    // todo: 公司工具方法类,
+    // todo: 公司工具方法类,
+    // todo: 时间处理 默认时间和更闹心时间
+    // todo: 时间处理 默认时间和更闹心时间
+    // todo: 时间处理 默认时间和更闹心时间
+
 }
