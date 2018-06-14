@@ -295,7 +295,7 @@ class tool_functions
      * @param int $type 1新增 2更新 3删除
      * @return array
      */
-    public static function htimeFieldHandle($data = [], $key = '', $type = 1) {
+    public static function timeFieldHandle($data = [], $key = '', $type = 1) {
 
         // $create_time
         // $create_str_time
@@ -343,6 +343,39 @@ class tool_functions
         return $min + mt_rand() / mt_getrandmax() * ($max - $min);
     }
 
+
+    /**
+     * 产生随机数
+     *
+     * @param int    $length 产生随机数长度
+     * @param int    $type   返回字符串类型 随机字符串 $type = 0：数字+字母 $type = 1：数字 $type = 2：字符
+     * @param string $hash   是否由前缀，默认为空. 如:$hash = 'zz-'  结果zz-823klis
+     *
+     * @return string
+     *
+     */
+    public static function random($length = 6, $type = 0, $hash = '')
+    {
+        $chars = '';
+        if ($type == 0) {
+            $chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+        } else {
+            if ($type == 1) {
+                $chars = '0123456789';
+            } else {
+                if ($type == 2) {
+                    $chars = 'abcdefghijklmnopqrstuvwxyz';
+                }
+            }
+        }
+        $max = strlen($chars) - 1;
+        mt_srand((double)microtime() * 1000000);
+        for ($i = 0; $i < $length; $i++) {
+            $hash .= $chars[mt_rand(0, $max)];
+        }
+
+        return $hash;
+    }
 
 
     // todo: 公司工具方法类,
